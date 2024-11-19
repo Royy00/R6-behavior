@@ -1,137 +1,137 @@
-local Players = game:GetService("Players")
-local UserInputService = game:GetService("UserInputService")
-local TweenService = game:GetService("TweenService")
+local pS = game:GetService("Players")
+local uS = game:GetService("UserInputService")
+local tS = game:GetService("TweenService")
 
-local player = Players.LocalPlayer
-local playerGui = player:WaitForChild("PlayerGui")
-local character = player.Character or player.CharacterAdded:Wait()
+local plr = pS.LocalPlayer
+local plrG = plr:WaitForChild("PlayerGui")
+local char = plr.Character or plr.CharacterAdded:Wait()
 
-local screenGui = Instance.new("ScreenGui")
-screenGui.Parent = playerGui
+local sGui = Instance.new("ScreenGui")
+sGui.Parent = plrG
 
-local function createTextLabel(text, size, color, position, transparency)
-    local textLabel = Instance.new("TextLabel")
-    textLabel.Parent = screenGui
-    textLabel.Text = text
-    textLabel.Size = size
-    textLabel.Position = position
-    textLabel.TextColor3 = color
-    textLabel.TextSize = 75
-    textLabel.Font = Enum.Font.GothamBold
-    textLabel.BackgroundTransparency = 3
-    textLabel.TextStrokeTransparency = 0.5
-    textLabel.TextStrokeColor3 = Color3.fromRGB(255, 255, 255)
-    textLabel.TextTransparency = transparency or 0
+local function newLabel(txt, sz, clr, pos, trans)
+    local lbl = Instance.new("TextLabel")
+    lbl.Parent = sGui
+    lbl.Text = txt
+    lbl.Size = sz
+    lbl.Position = pos
+    lbl.TextColor3 = clr
+    lbl.TextSize = 75
+    lbl.Font = Enum.Font.GothamBold
+    lbl.BackgroundTransparency = 3
+    lbl.TextStrokeTransparency = 0.5
+    lbl.TextStrokeColor3 = Color3.fromRGB(255, 255, 255)
+    lbl.TextTransparency = trans or 0
 
-    return textLabel
+    return lbl
 end
 
-local function showMadeByLainxo()
-    local textLabel = createTextLabel("Made by Lainxo.", UDim2.new(0, 600, 0, 100), Color3.fromRGB(255, 105, 180), UDim2.new(0.5, -300, 0.4, -50))
+local function displayMessage()
+    local lbl = newLabel("Powered by Lainxo", UDim2.new(0, 600, 0, 100), Color3.fromRGB(255, 105, 180), UDim2.new(0.5, -300, 0.4, -50))
 
-    local tweenInfo = TweenInfo.new(3, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
-    local goal = {TextTransparency = 1}
-    local tween = TweenService:Create(textLabel, tweenInfo, goal)
+    local tInfo = TweenInfo.new(3, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
+    local tGoal = {TextTransparency = 1}
+    local tween = tS:Create(lbl, tInfo, tGoal)
 
     tween:Play()
     tween.Completed:Connect(function()
-        textLabel:Destroy()
-        showKeybindMessage()
+        lbl:Destroy()
+        showShortcutMessage()
     end)
 end
 
-local function showKeybindMessage()
-    local textLabel = createTextLabel("Keybind is M", UDim2.new(0, 300, 0, 50), Color3.fromRGB(255, 255, 255), UDim2.new(1, -200, 1, -50), 1)
+local function showShortcutMessage()
+    local lbl = newLabel("Shortcut: M", UDim2.new(0, 300, 0, 50), Color3.fromRGB(255, 255, 255), UDim2.new(1, -200, 1, -50), 1)
 
-    local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
-    local goal = {TextTransparency = 0}
-    local tween = TweenService:Create(textLabel, tweenInfo, goal)
+    local tInfo = TweenInfo.new(2, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
+    local tGoal = {TextTransparency = 0}
+    local tween = tS:Create(lbl, tInfo, tGoal)
 
     tween:Play()
 end
 
 local sitting = false
-local bodyPosition = nil
+local bodyPos = nil
 
-local function toggleSitAndFloat()
-    local humanoid = character:FindFirstChild("Humanoid")
-    local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+local function toggleSitAndBounce()
+    local hum = char:FindFirstChild("Humanoid")
+    local humRoot = char:FindFirstChild("HumanoidRootPart")
 
-    if humanoid and humanoidRootPart then
+    if hum and humRoot then
         if sitting then
             sitting = false
-            humanoid.Sit = false
+            hum.Sit = false
             
-            if bodyPosition then
-                bodyPosition:Destroy()
-                bodyPosition = nil
+            if bodyPos then
+                bodyPos:Destroy()
+                bodyPos = nil
             end
         else
             sitting = true
-            humanoid.Sit = true
+            hum.Sit = true
             
-            bodyPosition = Instance.new("BodyPosition")
-            bodyPosition.MaxForce = Vector3.new(4000, 4000, 4000)
-            bodyPosition.D = 1000
-            bodyPosition.P = 10000
-            bodyPosition.Position = humanoidRootPart.Position + Vector3.new(0, 1, 0)
-            bodyPosition.Parent = humanoidRootPart
+            bodyPos = Instance.new("BodyPosition")
+            bodyPos.MaxForce = Vector3.new(4000, 4000, 4000)
+            bodyPos.D = 1000
+            bodyPos.P = 10000
+            bodyPos.Position = humRoot.Position + Vector3.new(0, 1, 0)
+            bodyPos.Parent = humRoot
 
-            local floatingAmplitude = 0.5
-            local floatingSpeed = 2
-            local startPosY = humanoidRootPart.Position.Y
+            local bounceAmplitude = 0.5
+            local bounceSpeed = 2
+            local startY = humRoot.Position.Y
 
             while sitting do
-                local newY = startPosY + floatingAmplitude * math.sin(tick() * floatingSpeed)
-                bodyPosition.Position = Vector3.new(humanoidRootPart.Position.X, newY, humanoidRootPart.Position.Z)
+                local newY = startY + bounceAmplitude * math.sin(tick() * bounceSpeed)
+                bodyPos.Position = Vector3.new(humRoot.Position.X, newY, humRoot.Position.Z)
                 wait(0.03)
             end
 
-            bodyPosition:Destroy()
-            bodyPosition = nil
+            bodyPos:Destroy()
+            bodyPos = nil
         end
     end
 end
 
-UserInputService.InputBegan:Connect(function(input, gameProcessed)
+uS.InputBegan:Connect(function(input, gameProcessed)
     if gameProcessed then return end
     
     if input.KeyCode == Enum.KeyCode.M then
-        toggleSitAndFloat()
+        toggleSitAndBounce()
     end
 end)
 
-showMadeByLainxo()
+displayMessage()
 
-local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "MessagePopup"
-screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+local sGui = Instance.new("ScreenGui")
+sGui.Name = "PopupMessage"
+sGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 
-local messageLabel = Instance.new("TextLabel")
-messageLabel.Size = UDim2.new(0, 200, 0, 50)
-messageLabel.Position = UDim2.new(1, 50, 1, 60)
-messageLabel.Text = "The keybind is M"
-messageLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-messageLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-messageLabel.BackgroundTransparency = 0.5
-messageLabel.TextSize = 18
-messageLabel.TextWrapped = true
-messageLabel.Font = Enum.Font.SourceSans
-messageLabel.Parent = screenGui
+local msgLbl = Instance.new("TextLabel")
+msgLbl.Size = UDim2.new(0, 200, 0, 50)
+msgLbl.Position = UDim2.new(1, 50, 1, 60)
+msgLbl.Text = "Press M to activate"
+msgLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
+msgLbl.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+msgLbl.BackgroundTransparency = 0.5
+msgLbl.TextSize = 18
+msgLbl.TextWrapped = true
+msgLbl.Font = Enum.Font.SourceSans
+msgLbl.Parent = sGui
 
-local TweenService = game:GetService("TweenService")
-local slideInTweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-local slideInGoal = {Position = UDim2.new(1, -210, 1, -60)}
-local slideInTween = TweenService:Create(messageLabel, slideInTweenInfo, slideInGoal)
+local tS = game:GetService("TweenService")
+local slideInTInfo = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+local slideInTGoal = {Position = UDim2.new(1, -210, 1, -60)}
+local slideInTween = tS:Create(msgLbl, slideInTInfo, slideInTGoal)
 slideInTween:Play()
 
 wait(5)
 
-local fadeOutTweenInfo = TweenInfo.new(2, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
-local fadeOutGoal = {BackgroundTransparency = 1, TextTransparency = 1}
-local fadeOutTween = TweenService:Create(messageLabel, fadeOutTweenInfo, fadeOutGoal)
+local fadeOutTInfo = TweenInfo.new(2, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
+local fadeOutTGoal = {BackgroundTransparency = 1, TextTransparency = 1}
+local fadeOutTween = tS:Create(msgLbl, fadeOutTInfo, fadeOutTGoal)
 fadeOutTween:Play()
 
 fadeOutTween.Completed:Connect(function()
-    messageLabel:Destroy()
+    msgLbl:Destroy()
 end)
