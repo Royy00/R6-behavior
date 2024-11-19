@@ -1,0 +1,137 @@
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+local character = player.Character or player.CharacterAdded:Wait()
+
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = playerGui
+
+local function createTextLabel(text, size, color, position, transparency)
+    local textLabel = Instance.new("TextLabel")
+    textLabel.Parent = screenGui
+    textLabel.Text = text
+    textLabel.Size = size
+    textLabel.Position = position
+    textLabel.TextColor3 = color
+    textLabel.TextSize = 75
+    textLabel.Font = Enum.Font.GothamBold
+    textLabel.BackgroundTransparency = 3
+    textLabel.TextStrokeTransparency = 0.5
+    textLabel.TextStrokeColor3 = Color3.fromRGB(255, 255, 255)
+    textLabel.TextTransparency = transparency or 0
+
+    return textLabel
+end
+
+local function showMadeByLainxo()
+    local textLabel = createTextLabel("Made by Lainxo.", UDim2.new(0, 600, 0, 100), Color3.fromRGB(255, 105, 180), UDim2.new(0.5, -300, 0.4, -50))
+
+    local tweenInfo = TweenInfo.new(3, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
+    local goal = {TextTransparency = 1}
+    local tween = TweenService:Create(textLabel, tweenInfo, goal)
+
+    tween:Play()
+    tween.Completed:Connect(function()
+        textLabel:Destroy()
+        showKeybindMessage()
+    end)
+end
+
+local function showKeybindMessage()
+    local textLabel = createTextLabel("Keybind is M", UDim2.new(0, 300, 0, 50), Color3.fromRGB(255, 255, 255), UDim2.new(1, -200, 1, -50), 1)
+
+    local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
+    local goal = {TextTransparency = 0}
+    local tween = TweenService:Create(textLabel, tweenInfo, goal)
+
+    tween:Play()
+end
+
+local sitting = false
+local bodyPosition = nil
+
+local function toggleSitAndFloat()
+    local humanoid = character:FindFirstChild("Humanoid")
+    local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+
+    if humanoid and humanoidRootPart then
+        if sitting then
+            sitting = false
+            humanoid.Sit = false
+            
+            if bodyPosition then
+                bodyPosition:Destroy()
+                bodyPosition = nil
+            end
+        else
+            sitting = true
+            humanoid.Sit = true
+            
+            bodyPosition = Instance.new("BodyPosition")
+            bodyPosition.MaxForce = Vector3.new(4000, 4000, 4000)
+            bodyPosition.D = 1000
+            bodyPosition.P = 10000
+            bodyPosition.Position = humanoidRootPart.Position + Vector3.new(0, 1, 0)
+            bodyPosition.Parent = humanoidRootPart
+
+            local floatingAmplitude = 0.5
+            local floatingSpeed = 2
+            local startPosY = humanoidRootPart.Position.Y
+
+            while sitting do
+                local newY = startPosY + floatingAmplitude * math.sin(tick() * floatingSpeed)
+                bodyPosition.Position = Vector3.new(humanoidRootPart.Position.X, newY, humanoidRootPart.Position.Z)
+                wait(0.03)
+            end
+
+            bodyPosition:Destroy()
+            bodyPosition = nil
+        end
+    end
+end
+
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then return end
+    
+    if input.KeyCode == Enum.KeyCode.M then
+        toggleSitAndFloat()
+    end
+end)
+
+showMadeByLainxo()
+
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "MessagePopup"
+screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+local messageLabel = Instance.new("TextLabel")
+messageLabel.Size = UDim2.new(0, 200, 0, 50)
+messageLabel.Position = UDim2.new(1, 50, 1, 60)
+messageLabel.Text = "The keybind is M"
+messageLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+messageLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+messageLabel.BackgroundTransparency = 0.5
+messageLabel.TextSize = 18
+messageLabel.TextWrapped = true
+messageLabel.Font = Enum.Font.SourceSans
+messageLabel.Parent = screenGui
+
+local TweenService = game:GetService("TweenService")
+local slideInTweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+local slideInGoal = {Position = UDim2.new(1, -210, 1, -60)}
+local slideInTween = TweenService:Create(messageLabel, slideInTweenInfo, slideInGoal)
+slideInTween:Play()
+
+wait(5)
+
+local fadeOutTweenInfo = TweenInfo.new(2, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
+local fadeOutGoal = {BackgroundTransparency = 1, TextTransparency = 1}
+local fadeOutTween = TweenService:Create(messageLabel, fadeOutTweenInfo, fadeOutGoal)
+fadeOutTween:Play()
+
+fadeOutTween.Completed:Connect(function()
+    messageLabel:Destroy()
+end)
